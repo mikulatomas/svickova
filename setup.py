@@ -10,4 +10,5 @@ setup(
             "svickova = svickova.cli:cli",
         ],
     },
+    install_requires=["selenium"]
 )
