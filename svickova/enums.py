@@ -4,6 +4,7 @@ class Category(Enum):
     SOUP = "Polévky, saláty"
     DAILY_OFFER = "Hotovky"
     SPECIALS = "Minutky"
+    PIZZA = "Pizza"
 
 class Special(Enum):
     FRY = "Smažené jídlo"
