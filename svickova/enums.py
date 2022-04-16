@@ -1,3 +1,5 @@
+import json
+
 from enum import Enum
 
 class Category(str, Enum):
