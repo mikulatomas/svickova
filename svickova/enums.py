@@ -14,6 +14,10 @@ class Special(Enum):
     VEG = "Vegetariánské jídlo"
     GLUTEN = "Bezlepkové jídlo"
 
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__, 
+            sort_keys=True, indent=4)
+
 class Canteen(Enum):
     LISTOPAD_17 = 1
     KRIZKOVSKEHO = 2
@@ -21,4 +25,3 @@ class Canteen(Enum):
     LEKARSKA_FAKULTA = 4
     NEREDIN = 6
     HOLICE = 13
-
