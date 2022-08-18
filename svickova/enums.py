@@ -5,6 +5,7 @@ class Category(str, Enum):
     SOUP = "Polévky, saláty"
     DAILY_OFFER = "Hotovky"
     SPECIALS = "Minutky"
+    PIZZA = "Pizza"
     UNKNOWN = ""
 
 
