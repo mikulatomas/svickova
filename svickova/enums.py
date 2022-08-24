@@ -1,20 +1,24 @@
-from enum import Enum
+from enum import Enum, IntEnum
+
 
 class Category(str, Enum):
-    SOUP: str = "Polévky, saláty"
-    DAILY_OFFER: str = "Hotovky"
-    SPECIALS: str = "Minutky"
-    PIZZA: str = "Pizza"
+    SOUP = "Polévky, saláty"
+    DAILY_OFFER = "Hotovky"
+    SPECIALS = "Minutky"
+    PIZZA = "Pizza"
+    UNKNOWN = ""
+
 
 class Special(str, Enum):
-    FRY: str = "Smažené jídlo"
-    VEG: str = "Vegetariánské jídlo"
-    GLUTEN: str = "Bezlepkové jídlo"
+    FRY = "Smažené jídlo"
+    VEG = "Vegetariánské jídlo"
+    GLUTEN = "Bezlepkové jídlo"
 
-class Canteen(int, Enum):
-    LISTOPAD_17: int = 1
-    KRIZKOVSKEHO: int = 2
-    SMERALOVA: int = 3
-    LEKARSKA_FAKULTA: int = 4
-    NEREDIN: int = 6
-    HOLICE: int = 13
+
+class Canteen(IntEnum):
+    LISTOPAD_17 = 1
+    KRIZKOVSKEHO = 2
+    SMERALOVA = 3
+    LEKARSKA_FAKULTA = 4
+    NEREDIN = 6
+    HOLICE = 13
