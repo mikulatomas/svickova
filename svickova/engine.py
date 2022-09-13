@@ -1,49 +1,38 @@
 import math
-from typing import Any
-from urllib.parse import urlencode
-from datetime import date, datetime
+import datetime
+import dateutil.tz
+import requests
+import json
 
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.remote.webdriver import WebDriver
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
+from typing import Dict
+from urllib.parse import urlencode
 
 from .meal import Meal
 from .enums import Category, Special, Canteen
 
-URL = "https://menza.upol.cz/WebKredit2/Ordering/Menu?"
+API = "https://menza.upol.cz/webkredit2/Api/Ordering/Menu?"
 
 
-def parse_menu(menu_element: Any) -> list["Meal"]:
+def parse_menu(data: Dict) -> list["Meal"]:
     meals: list["Meal"] = []
 
-    category = ""
-    for elem in menu_element.find_elements(By.TAG_NAME, "tr"):
-        subelements = elem.find_elements(By.TAG_NAME, "td")
+    special_names = {special["id"]: special["name"] for special in data["pictograms"]}
 
-        if len(subelements) < 2:
-            category = next(iter(elem.text.split(" - ")))
-        else:
-            specials: list[str] = [
-                elem.get_attribute("title")
-                for elem in subelements[1].find_elements(By.TAG_NAME, "img")
-            ]
-            name: str = (
-                subelements[3]
-                .find_element(By.TAG_NAME, "span")
-                .text.removeprefix("BEZLEP ")
-            )
-            count: str | int | float = subelements[4].text
-            count = int(count) if count else math.inf
-            price = float(
-                subelements[5].text.removesuffix("Kč").strip().replace(",", ".")
-            )
+    for group in data["groups"]:
+        category = Category(group["mealKindName"])
+        for meal in group["rows"]:
+            meal = meal["item"]
 
+            name = meal["mealName"].removeprefix("BEZLEP ")
+            specials = meal["pictograms"] if meal["pictograms"] else []
+            count = meal["countAvailable"] if meal["countAvailable"] else math.inf
+
+            price = meal["price2"]
             meals.append(
                 Meal(
                     name,
-                    Category(category),
-                    [Special(special) for special in specials],
+                    category,
+                    [Special(special_names[idx]) for idx in specials],
                     count,
                     price,
                 )
@@ -54,18 +43,15 @@ def parse_menu(menu_element: Any) -> list["Meal"]:
 
 def download_menu(
     canteen: "Canteen",
-    date: date | datetime,
-    driver: "WebDriver",
+    date: datetime.datetime,
 ) -> list["Meal"]:
-    get_vars = {"canteen": canteen, "dateFrom": date, "dateTo": date}
-    url = f"{URL}{urlencode(get_vars)}"
-
-    driver.get(url)  # type: ignore
-
-    xpath = "/html/body/div/main/div/div[2]/section/article/div/div/table/tbody"
-
-    menu_element: Any = WebDriverWait(driver, 10).until(  # type: ignore
-        EC.presence_of_element_located((By.XPATH, xpath))  # type: ignore
+    date = date.replace(hour=0, minute=0, second=0, microsecond=0).astimezone(
+        dateutil.tz.tzutc()
     )
 
-    return parse_menu(menu_element)
+    get_vars = {"CanteenId": canteen.value, "Dates": date.strftime("%Y-%m-%dT%H:%M:%SZ")}
+    url = f"{API}{urlencode(get_vars)}"
+
+    data = json.loads(requests.get(url).content)
+
+    return parse_menu(data)
