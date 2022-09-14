@@ -1,11 +1,11 @@
 import math
 import datetime
 import dateutil.tz
-import requests
 import json
 
 from typing import Dict
 from urllib.parse import urlencode
+from urllib.request import urlopen
 
 from .meal import Meal
 from .enums import Category, Special, Canteen
@@ -49,9 +49,12 @@ def download_menu(
         dateutil.tz.tzutc()
     )
 
-    get_vars = {"CanteenId": canteen.value, "Dates": date.strftime("%Y-%m-%dT%H:%M:%SZ")}
+    get_vars = {
+        "CanteenId": canteen.value,
+        "Dates": date.strftime("%Y-%m-%dT%H:%M:%SZ"),
+    }
     url = f"{API}{urlencode(get_vars)}"
 
-    data = json.loads(requests.get(url).content)
+    data = json.loads(urlopen(url).read())
 
     return parse_menu(data)
