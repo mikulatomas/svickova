@@ -1,9 +1,8 @@
-import math
-import datetime
-import dateutil.tz
 import json
+import dateutil.tz
+from typing import Any
+from datetime import datetime
 
-from typing import Dict
 from urllib.parse import urlencode
 from urllib.request import urlopen
 
@@ -13,7 +12,16 @@ from .enums import Category, Special, Canteen
 API = "https://menza.upol.cz/webkredit2/Api/Ordering/Menu?"
 
 
-def parse_menu(data: Dict) -> list["Meal"]:
+def meal_name_adjustment(meal_name: str) -> str:
+    name: str = meal_name
+    for prefix in ["BEZLEP", "PIZZA"]:
+        name = name.removeprefix(f"{prefix} ")
+    name = name.capitalize()
+
+    return name
+
+
+def parse_menu(data: dict[str, Any]) -> list["Meal"]:
     meals: list["Meal"] = []
 
     special_names = {special["id"]: special["name"] for special in data["pictograms"]}
@@ -23,11 +31,11 @@ def parse_menu(data: Dict) -> list["Meal"]:
         for meal in group["rows"]:
             meal = meal["item"]
 
-            name = meal["mealName"].removeprefix("BEZLEP ")
-            specials = meal["pictograms"] if meal["pictograms"] else []
-            count = meal["countAvailable"] if meal["countAvailable"] else math.inf
+            name = meal_name_adjustment(meal["mealName"])
+            specials: list[str] = meal["pictograms"] if meal["pictograms"] else []
+            count: int = meal["countAvailable"] if meal["countAvailable"] else 0
 
-            price = meal["price2"]
+            price: float = meal["price2"]
             meals.append(
                 Meal(
                     name,
@@ -43,7 +51,7 @@ def parse_menu(data: Dict) -> list["Meal"]:
 
 def download_menu(
     canteen: "Canteen",
-    date: datetime.datetime,
+    date: datetime,
 ) -> list["Meal"]:
     date = date.replace(hour=0, minute=0, second=0, microsecond=0).astimezone(
         dateutil.tz.tzutc()

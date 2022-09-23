@@ -8,5 +8,5 @@ class Meal:
     name: str
     category: "Category"
     special: list["Special"]
-    count: float | int
+    count: int
     price: float
