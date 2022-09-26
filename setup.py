@@ -14,6 +14,7 @@ setup(
     license="MIT license",
     url="https://github.com/mikulatomas/svickova",
     packages=find_packages(),
+    install_requires=["python-dateutil"],
     entry_points={
         "console_scripts": [
             "svickova = svickova.cli:cli",
