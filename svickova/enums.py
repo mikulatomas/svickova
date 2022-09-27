@@ -11,7 +11,8 @@ class Category(str, Enum):
 
 class Special(str, Enum):
     FRY = "Smažené jídlo"
-    VEG = "Vegetariánské jídlo"
+    VEGAN = "Vegan"
+    VEGETARIAN = "Vegetariánské jídlo"
     GLUTEN = "Bezlepkové jídlo"
 
 
